@@ -288,7 +288,7 @@ export function ContentSection({isSm, isXs, setOverLayMode, refreshKey, contentT
                                 tags={content.tags.map(tag => tag.title)} 
                                 date={new Date().toUTCString()} 
                                 content={content.link} 
-                                extraClass={isXs ? "m-2" : ''}
+                                extraClass={isXs ? `m-2 ` : ''}
                                 onContentDeleted={refreshContent}
                             />
                         ))

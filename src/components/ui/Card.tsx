@@ -109,7 +109,7 @@ export function Card({id, title, type, tags,  content, extraClass, onContentDele
             )}
             </div>
         </div>
-        <div className="text-md mb-2 overflow-hidden" style={{ display: '-webkit-box', WebkitLineClamp: 6, WebkitBoxOrient: 'vertical' }}>
+        <div className={`text-md mb-2 overflow-hidden ${type == 'text'? 'font-mono': ''}`} style={{ display: '-webkit-box', WebkitLineClamp: 6, WebkitBoxOrient: 'vertical' }}>
             {RenderContent[type]}
         </div>
         {/* Optionally render tags and date */}
