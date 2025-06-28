@@ -4,7 +4,7 @@ import { Overlay } from "./Overlay";
 import { PopUpBox } from "./popUpBox";
 import { Button } from "./Button";
 import { TagSelector } from "./TagSelector";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlusIcon } from "../../icons/plusIcon";
 import { BACKEND_URL } from "../../config";
 
@@ -13,13 +13,55 @@ export function AddContent({setOverLayMode, onContentAdded}: {setOverLayMode: Di
     const [title, setTitle] = useState<string>('');
     const [content, setContent] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
+    const [availableTags, setAvailableTags] = useState<string[]>([]);
     
-    // Sample available tags - in a real app, this would come from your backend
-    const availableTags = [
-        "javascript", "react", "typescript", "nodejs", "css", "html", 
-        "programming", "tutorial", "documentation", "project", "learning",
-        "frontend", "backend", "fullstack", "database", "api"
-    ];
+    // Fetch available tags from backend
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    // If no token, use fallback tags
+                    setAvailableTags([
+                        "javascript", "react", "typescript", "nodejs", "css", "html", 
+                        "programming", "tutorial", "documentation", "project", "learning",
+                        "frontend", "backend", "fullstack", "database", "api"
+                    ]);
+                    return;
+                }
+
+                const response = await fetch(`${BACKEND_URL}/api/v1/tags`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setAvailableTags(data.tags || []);
+                } else {
+                    // Fallback to default tags if API fails
+                    setAvailableTags([
+                        "javascript", "react", "typescript", "nodejs", "css", "html", 
+                        "programming", "tutorial", "documentation", "project", "learning",
+                        "frontend", "backend", "fullstack", "database", "api"
+                    ]);
+                }
+            } catch (error) {
+                console.error('Error fetching tags:', error);
+                // Fallback to default tags if fetch fails
+                setAvailableTags([
+                    "javascript", "react", "typescript", "nodejs", "css", "html", 
+                    "programming", "tutorial", "documentation", "project", "learning",
+                    "frontend", "backend", "fullstack", "database", "api"
+                ]);
+            }
+        };
+
+        fetchTags();
+    }, []);
 
     const [contentType, setContentType] = useState<'text'| 'image' | 'audio' | 'video' | 'link'>('text');
 
@@ -76,6 +118,26 @@ export function AddContent({setOverLayMode, onContentAdded}: {setOverLayMode: Di
             setContent('');
             setSelectedTags([]);
             setContentType('text');
+            
+            // Refresh available tags in case new tags were created
+            try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    const tagsResponse = await fetch(`${BACKEND_URL}/api/v1/tags`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (tagsResponse.ok) {
+                        const tagsData = await tagsResponse.json();
+                        setAvailableTags(tagsData.tags || []);
+                    }
+                }
+            } catch (error) {
+                console.error('Error refreshing tags:', error);
+            }
             
             // Close modal
             setOverLayMode('default');
