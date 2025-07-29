@@ -4,6 +4,8 @@ import { Button } from "./ui/Button";
 import axios, { type AxiosError } from "axios";
 import { BACKEND_URL } from "../config";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../hooks/useNotification";
+import { NotificationContainer } from "./ui/NotificationContainer";
 
 const passwordRules = [
     { regex: /.{8,}/, message: "Password must be at least 8 characters long" },
@@ -20,6 +22,7 @@ export default function SignUp() {
     const [errors, setErrors] = useState<{ username?: string; password?: string[] }>({});
     const [loadingState, setLoadingState] = useState(false);
     const navigate = useNavigate();
+    const { showNotification, removeNotification, notifications } = useNotification();
 
     const validate = () => {
         let valid = true;
@@ -46,8 +49,9 @@ export default function SignUp() {
                     username: username,
                     password: password,
                 });
-                alert("Sign Up Successful! Redirecting...");
-                navigate("/login");
+                showNotification("Sign Up Successful! Redirecting...", "success", 2000, () => {
+                    navigate("/login");
+                });
 
                 
             } catch (error) {
@@ -55,7 +59,7 @@ export default function SignUp() {
                 if (e.response && e.response.status === 403) {
                     setErrors((prevErrors) => ({ ...prevErrors, username: "Username already exists" }));
                 } else {
-                    alert("An error occurred during sign up.");
+                    showNotification("An error occurred during sign up.", "error");
                 }
             }
             setLoadingState(false);
@@ -113,6 +117,13 @@ export default function SignUp() {
                     </div>
                 </form>
             </PopUpBox>
+            
+            {/* Notification Container */}
+            <NotificationContainer 
+                notifications={notifications}
+                onNotificationComplete={removeNotification}
+                onNotificationClose={removeNotification}
+            />
         </div>
     );
 }

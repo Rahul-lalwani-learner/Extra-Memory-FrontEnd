@@ -4,6 +4,8 @@ import { Button } from "./ui/Button";
 import { useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../config";
 import axios, { AxiosError } from "axios";
+import { useNotification } from "../hooks/useNotification";
+import { NotificationContainer } from "./ui/NotificationContainer";
 
 const passwordRules = [
 	{ regex: /.{8,}/, message: "Password must be at least 8 characters long" },
@@ -20,6 +22,7 @@ export default function Login() {
 	const [loadingState, setLoadingState] = useState(false);
 	const [errors, setErrors] = useState<{ username?: string; password?: string[] }>({});
 	const navigate = useNavigate();
+	const { showNotification, removeNotification, notifications } = useNotification();
 
 	const validate = () => {
 		let valid = true;
@@ -55,8 +58,9 @@ export default function Login() {
                     console.log('Token stored in localStorage');
                 }
                 
-                alert("LogIn Successful! Redirecting...");
-                navigate("/dashboard");
+                showNotification("LogIn Successful! Redirecting...", "success", 2000, () => {
+                    navigate("/dashboard");
+                });
 
                 
             } catch (error) {
@@ -68,7 +72,7 @@ export default function Login() {
 					setErrors((prevErrors) => ({ ...prevErrors, username: "InValid Password" }));
 				}
 				 else {
-                    alert("An error occurred during sign in.");
+                    showNotification("An error occurred during sign in.", "error");
                 }
             }
             setLoadingState(false);
@@ -126,6 +130,13 @@ export default function Login() {
 					</div>
 				</form>
 			</PopUpBox>
+			
+			{/* Notification Container */}
+			<NotificationContainer 
+				notifications={notifications}
+				onNotificationComplete={removeNotification}
+				onNotificationClose={removeNotification}
+			/>
 		</div>
 	);
 }

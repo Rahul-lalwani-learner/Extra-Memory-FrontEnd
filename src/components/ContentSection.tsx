@@ -35,10 +35,12 @@ interface ContentProps{
     isXs: boolean, 
     setOverLayMode: Dispatch<SetStateAction<string>>,
     refreshKey?: number, 
-    contentType ?: string
+    contentType ?: string,
+    onCardClick?: (cardData: {id: string, title: string, type: 'text' | 'video' | 'image' | 'audio' | 'link', tags: string[], content: string}) => void,
+    showNotification?: (message: string, type?: 'success' | 'error' | 'info') => void
 }
 
-export function ContentSection({isSm, isXs, setOverLayMode, refreshKey, contentType}:ContentProps){
+export function ContentSection({isSm, isXs, setOverLayMode, refreshKey, contentType, onCardClick, showNotification}:ContentProps){
     const [contents, setContents] = useState<Content[]>([]);
     const [tags, setTags] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
@@ -290,6 +292,8 @@ export function ContentSection({isSm, isXs, setOverLayMode, refreshKey, contentT
                                 content={content.link} 
                                 extraClass={isXs ? `m-2 ` : ''}
                                 onContentDeleted={refreshContent}
+                                onCardClick={onCardClick}
+                                showNotification={showNotification}
                             />
                         ))
                 )

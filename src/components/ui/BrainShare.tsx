@@ -7,7 +7,13 @@ import { PopUpBox } from "./popUpBox";
 import { StopIcon } from "../../icons/stopIcon";
 import { BACKEND_URL } from "../../config";
 
-export function ShareBrain({setOverLayMode}: {setOverLayMode: Dispatch<SetStateAction<string>>}){
+export function ShareBrain({
+    setOverLayMode, 
+    showNotification
+}: {
+    setOverLayMode: Dispatch<SetStateAction<string>>,
+    showNotification?: (message: string, type?: 'success' | 'error' | 'info', duration?: number, onComplete?: () => void) => void
+}){
     const shareLink = useRef(null);
     const [shareableLink, setShareableLink] = useState<string>("");
     const [isSharing, setIsSharing] = useState<boolean>(false);
@@ -18,7 +24,11 @@ export function ShareBrain({setOverLayMode}: {setOverLayMode: Dispatch<SetStateA
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                alert('Please sign in to share your brain');
+                if (showNotification) {
+                    showNotification('Please sign in to share your brain', 'error');
+                } else {
+                    alert('Please sign in to share your brain');
+                }
                 return;
             }
 
@@ -42,10 +52,18 @@ export function ShareBrain({setOverLayMode}: {setOverLayMode: Dispatch<SetStateA
             
             setShareableLink(frontendUrl);
             setIsSharing(true);
-            alert("Sharing enabled! Link is ready to copy.");
+            if (showNotification) {
+                showNotification("Sharing enabled! Link is ready to copy.", 'success');
+            } else {
+                alert("Sharing enabled! Link is ready to copy.");
+            }
         } catch (error) {
             console.error('Error enabling sharing:', error);
-            alert('Failed to enable sharing. Please try again.');
+            if (showNotification) {
+                showNotification('Failed to enable sharing. Please try again.', 'error');
+            } else {
+                alert('Failed to enable sharing. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -56,7 +74,11 @@ export function ShareBrain({setOverLayMode}: {setOverLayMode: Dispatch<SetStateA
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                alert('Please sign in');
+                if (showNotification) {
+                    showNotification('Please sign in', 'error');
+                } else {
+                    alert('Please sign in');
+                }
                 return;
             }
 
@@ -74,10 +96,18 @@ export function ShareBrain({setOverLayMode}: {setOverLayMode: Dispatch<SetStateA
 
             setShareableLink("");
             setIsSharing(false);
-            alert("Content sharing has been stopped");
+            if (showNotification) {
+                showNotification("Content sharing has been stopped", 'success');
+            } else {
+                alert("Content sharing has been stopped");
+            }
         } catch (error) {
             console.error('Error disabling sharing:', error);
-            alert('Failed to disable sharing. Please try again.');
+            if (showNotification) {
+                showNotification('Failed to disable sharing. Please try again.', 'error');
+            } else {
+                alert('Failed to disable sharing. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -110,7 +140,11 @@ export function ShareBrain({setOverLayMode}: {setOverLayMode: Dispatch<SetStateA
                   if (isSharing && shareableLink) {
                     // If already sharing, copy the link
                     navigator.clipboard.writeText(shareableLink);
-                    alert("Link Copied")
+                    if (showNotification) {
+                        showNotification("Link Copied", 'success');
+                    } else {
+                        alert("Link Copied");
+                    }
                   } else {
                     // Enable sharing first
                     await enableSharing();

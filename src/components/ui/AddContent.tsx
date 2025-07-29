@@ -8,7 +8,11 @@ import { useState, useEffect } from "react";
 import { PlusIcon } from "../../icons/plusIcon";
 import { BACKEND_URL } from "../../config";
 
-export function AddContent({setOverLayMode, onContentAdded}: {setOverLayMode: Dispatch<SetStateAction<string>>, onContentAdded?: () => void}){
+export function AddContent({setOverLayMode, onContentAdded, showNotification}: {
+    setOverLayMode: Dispatch<SetStateAction<string>>, 
+    onContentAdded?: () => void,
+    showNotification?: (message: string, type?: 'success' | 'error' | 'info') => void
+}){
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [title, setTitle] = useState<string>('');
     const [content, setContent] = useState<string>('');
@@ -68,17 +72,29 @@ export function AddContent({setOverLayMode, onContentAdded}: {setOverLayMode: Di
     const handleAddContent = async () => {
         // Validation
         if (!title.trim()) {
-            alert('Please enter a title');
+            if (showNotification) {
+                showNotification('Please enter a title', 'error');
+            } else {
+                alert('Please enter a title');
+            }
             return;
         }
         
         if (!content.trim()) {
-            alert('Please enter content');
+            if (showNotification) {
+                showNotification('Please enter content', 'error');
+            } else {
+                alert('Please enter content');
+            }
             return;
         }
 
         if (selectedTags.length === 0) {
-            alert('Please select at least one tag');
+            if (showNotification) {
+                showNotification('Please select at least one tag', 'error');
+            } else {
+                alert('Please select at least one tag');
+            }
             return;
         }
 
@@ -87,7 +103,11 @@ export function AddContent({setOverLayMode, onContentAdded}: {setOverLayMode: Di
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                alert('Please sign in to add content');
+                if (showNotification) {
+                    showNotification('Please sign in to add content', 'error');
+                } else {
+                    alert('Please sign in to add content');
+                }
                 return;
             }
 
@@ -111,7 +131,24 @@ export function AddContent({setOverLayMode, onContentAdded}: {setOverLayMode: Di
             }
 
             await response.json();
-            alert('Content added successfully!');
+            
+            if (showNotification) {
+                showNotification('Content added successfully!', 'success');
+                // Use setTimeout to wait for notification and then close overlay
+                setTimeout(() => {
+                    setOverLayMode('default');
+                    if (onContentAdded) {
+                        onContentAdded();
+                    }
+                }, 2000);
+            } else {
+                alert('Content added successfully!');
+                // Close overlay and refresh immediately for fallback
+                setOverLayMode('default');
+                if (onContentAdded) {
+                    onContentAdded();
+                }
+            }
             
             // Reset form
             setTitle('');
@@ -152,7 +189,12 @@ export function AddContent({setOverLayMode, onContentAdded}: {setOverLayMode: Di
             
         } catch (error) {
             console.error('Error adding content:', error);
-            alert(`Failed to add content: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            const errorMessage = `Failed to add content: ${error instanceof Error ? error.message : 'Unknown error'}`;
+            if (showNotification) {
+                showNotification(errorMessage, 'error');
+            } else {
+                alert(errorMessage);
+            }
         } finally {
             setLoading(false);
         }

@@ -224,12 +224,6 @@ export default function LandingPage() {
                                 text="Terms of Service"
                                 onClick={() => {}}
                             />
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                text="Contact"
-                                onClick={() => {}}
-                            />
                         </div>
                         <p className="text-gray-500 text-sm mt-8">
                             © 2025 Extra Memory. All rights reserved.

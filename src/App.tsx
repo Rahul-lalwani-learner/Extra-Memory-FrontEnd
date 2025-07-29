@@ -21,6 +21,9 @@ import { SharedBrain } from "./components/SharedBrain"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { AllContentIcon } from "./icons/AllContentIcon"
 import LandingPage from "./components/LandingPage"
+import { ContentViewer } from "./components/ui/ContentViewer"
+import { useNotification } from "./hooks/useNotification"
+import { NotificationContainer } from "./components/ui/NotificationContainer"
 
 
 function App() {
@@ -47,6 +50,7 @@ function Main(){
 
   const [contentType, setContentType] = useState<string>("all");
   const [sideBarOpen, setsideBarOpen] = useState(true);
+  const { showNotification, removeNotification, notifications } = useNotification();
 
   // Automatically open sidebar only when screen size increases to md and user hasn't manually toggled it
   // Use useEffect to avoid running on every render and to prevent interfering with manual toggling
@@ -68,14 +72,35 @@ function Main(){
   
   const [overLayMode, setOverLayMode] = useState('default');
   const [contentRefreshKey, setContentRefreshKey] = useState(0);
+  const [selectedContent, setSelectedContent] = useState<{id: string, title: string, type: 'text' | 'video' | 'image' | 'audio' | 'link', tags: string[], content: string} | null>(null);
 
   const refreshContent = () => {
     setContentRefreshKey(prev => prev + 1);
   };
 
+  const handleCardClick = (cardData: {id: string, title: string, type: 'text' | 'video' | 'image' | 'audio' | 'link', tags: string[], content: string}) => {
+    setSelectedContent(cardData);
+    setOverLayMode('contentViewer');
+  };
+
+  const handleCloseContentViewer = () => {
+    setSelectedContent(null);
+    setOverLayMode('default');
+  };
+
   const overLayElements: Record<string, ReactElement |string > = {
-    'brainShare': <ShareBrain setOverLayMode={setOverLayMode}/>,
-    'addContent': <AddContent setOverLayMode={setOverLayMode} onContentAdded={refreshContent}/> ,
+    'brainShare': <ShareBrain setOverLayMode={setOverLayMode} showNotification={showNotification}/>,
+    'addContent': <AddContent setOverLayMode={setOverLayMode} onContentAdded={refreshContent} showNotification={showNotification}/>,
+    'contentViewer': selectedContent ? (
+      <ContentViewer 
+        id={selectedContent.id}
+        title={selectedContent.title}
+        type={selectedContent.type}
+        tags={selectedContent.tags}
+        content={selectedContent.content}
+        onClose={handleCloseContentViewer}
+      />
+    ) : '',
     'default': ''
   }
   
@@ -120,7 +145,10 @@ function Main(){
 
       {/* Logout dropdown positioned at bottom-left of main content area */}
       {showProfileDropDown && (
-        <ProfileDropDown setshowProfileDropDown={setshowProfileDropDown}></ProfileDropDown>
+        <ProfileDropDown 
+          setshowProfileDropDown={setshowProfileDropDown}
+          showNotification={showNotification}
+        />
       )}
       
       
@@ -130,7 +158,15 @@ function Main(){
         setOverLayMode={setOverLayMode}
         refreshKey={contentRefreshKey}
         contentType = {contentType}
-        
+        onCardClick={handleCardClick}
+        showNotification={showNotification}
+      />
+      
+      {/* Notification Container */}
+      <NotificationContainer 
+        notifications={notifications}
+        onNotificationComplete={removeNotification}
+        onNotificationClose={removeNotification}
       />
     </div>
   </div>

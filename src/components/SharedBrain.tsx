@@ -4,6 +4,7 @@ import { Card } from "./ui/Card";
 import { BACKEND_URL } from "../config";
 import { Button } from "./ui/Button";
 import { LeftArrowIcon } from "../icons/leftArrowIcon";
+import { ContentViewer } from "./ui/ContentViewer";
 
 interface Tag {
     _id: string;
@@ -37,6 +38,16 @@ export function SharedBrain() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [ownerUsername, setOwnerUsername] = useState<string>("");
+    const [selectedContent, setSelectedContent] = useState<{id: string, title: string, type: 'text' | 'video' | 'image' | 'audio' | 'link', tags: string[], content: string} | null>(null);
+    
+
+    const handleCardClick = (cardData: {id: string, title: string, type: 'text' | 'video' | 'image' | 'audio' | 'link', tags: string[], content: string}) => {
+        setSelectedContent(cardData);
+    };
+
+    const handleCloseContentViewer = () => {
+        setSelectedContent(null);
+    };
     
 
     useEffect(() => {
@@ -125,29 +136,41 @@ export function SharedBrain() {
     
 
     return (
-        <div className="flex min-h-screen overflow-hidden h-full w-full bg-gray-50">
+        <div className={`flex min-h-screen ${selectedContent ? 'overflow-hidden max-h-screen max-w-screen' : ''}`}>
+            {/* Content Viewer Overlay */}
+            {selectedContent && (
+                <ContentViewer 
+                    id={selectedContent.id}
+                    title={selectedContent.title}
+                    type={selectedContent.type}
+                    tags={selectedContent.tags}
+                    content={selectedContent.content}
+                    onClose={handleCloseContentViewer}
+                />
+            )}
+            
             {/* Main content area */}
-            <div className="flex-1">
+            <div className="flex-1 overflow-hidden h-full w-full bg-gray-50">
                 {/* Header */}
-                <div className="flex h-24 w-full justify-between items-center bg-white border-b border-gray-200 px-8">
+                <div className="flex h-16 sm:h-20 md:h-24 w-full justify-between items-center bg-white border-b border-gray-200 px-4 sm:px-6 md:px-8">
                     <Button
                         variant="secondary"
                         size="sm"
                         text="Back"
                         startIcon={<LeftArrowIcon />}
                         onClick={() => navigate(-1)}
-                        extraClass="mr-4"
+                        extraClass="mr-2 sm:mr-4"
                     />
-                    <div className="font-bold text-lg sm:text-3xl xs:text-xl flex-1 text-center">
+                    <div className="font-bold text-base sm:text-xl md:text-2xl lg:text-3xl flex-1 text-center px-2">
                         {ownerUsername ? `All Notes of ${ownerUsername}` : "Shared Brain"}
                     </div>
-                    <div className="w-20"></div> {/* Spacer for centering */}
+                    <div className="w-16 sm:w-20"></div> {/* Spacer for centering */}
                 </div>
                 
                 {/* Content grid */}
-                <div className="min-h-full w-full px-4 py-8 flex flex-wrap  justify-center items-start">
+                <div className="min-h-full w-full px-2 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 md:py-8 flex flex-wrap justify-center items-start overflow-y-auto">
                     {contents.length === 0 ? (
-                        <div className="w-full text-center text-gray-500 mt-8">
+                        <div className="w-full text-center text-gray-500 mt-8 text-sm sm:text-base md:text-lg">
                             This brain has no content to share.
                         </div>
                     ) : (
@@ -160,12 +183,12 @@ export function SharedBrain() {
                                 tags={content.tags.map(tag => tag.title)} 
                                 date={new Date().toUTCString()} 
                                 content={content.link} 
-                                extraClass="m-2"
+                                extraClass="m-1 sm:m-2"
                                 readOnly={true}
+                                onCardClick={handleCardClick}
                             />
                         ))
                     )}
-                    
                 </div>
             </div>
         </div>
