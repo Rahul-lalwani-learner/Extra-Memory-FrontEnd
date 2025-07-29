@@ -49,7 +49,13 @@ function Main(){
   });
 
   const [contentType, setContentType] = useState<string>("all");
-  const [sideBarOpen, setsideBarOpen] = useState(true);
+  // Set initial sidebar state based on window width (open if >= md, closed if < md)
+  const [sideBarOpen, setsideBarOpen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth >= 768; // 48rem = 768px
+    }
+    return true;
+  });
   const { showNotification, removeNotification, notifications } = useNotification();
 
   // Automatically open sidebar only when screen size increases to md and user hasn't manually toggled it
