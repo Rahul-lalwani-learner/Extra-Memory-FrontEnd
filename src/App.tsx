@@ -20,6 +20,7 @@ import { ProfileDropDown } from "./components/ui/ProfileDropDown"
 import { SharedBrain } from "./components/SharedBrain"
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { AllContentIcon } from "./icons/AllContentIcon"
+import LandingPage from "./components/LandingPage"
 
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
   // return <Login></Login>
   return <BrowserRouter>
     <Routes>
+      <Route path="/" element={<LandingPage />}></Route>
       <Route path="/signup" element={<SignUp></SignUp>}></Route>
       <Route path="/login" element={<Login></Login>}></Route>
       <Route path="/dashboard" element={<Main></Main>}></Route>
