@@ -49,12 +49,12 @@ export default function LandingPage() {
             {/* Header */}
             <header className="bg-white shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center py-6">
+                    <div className="flex justify-between items-center py-6 h-24 sm:h-auto">
                         <div className="flex items-center space-x-3">
                             <StorageIcon size="size-8" />
-                            <h1 className="text-2xl font-bold text-gray-900">Extra Memory</h1>
+                            <h1 className="sm:text-2xl text-lg font-bold text-gray-900">Extra Memory</h1>
                         </div>
-                        <div className="flex space-x-4">
+                        <div className="flex space-x-4 sm:flex-row flex-col sm:text-base text-xs">
                             <Button
                                 variant="secondary"
                                 size="md"
